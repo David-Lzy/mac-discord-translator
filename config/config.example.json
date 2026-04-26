@@ -1,0 +1,22 @@
+{
+  "discord": {
+    "botToken": "PUT_DISCORD_BOT_TOKEN_HERE",
+    "guildId": "PUT_DISCORD_GUILD_ID_HERE",
+    "webhookMode": true,
+    "mentionOriginalAuthor": false
+  },
+  "translation": {
+    "vllmBaseUrl": "http://127.0.0.1:8000/v1",
+    "vllmModel": "/model",
+    "enableLocalMlxApi": true,
+    "mlxHost": "127.0.0.1",
+    "mlxPort": 5010,
+    "mlxModel": "mlx-community/Qwen3.5-0.8B-4bit"
+  },
+  "mirrorBot": {
+    "channelGroups": [
+      "offtopic>CHANNEL_ID|zh,CHANNEL_ID|en,CHANNEL_ID|ja,CHANNEL_ID|fr,CHANNEL_ID|de,CHANNEL_ID|es,CHANNEL_ID|ru"
+    ],
+    "channelPairs": []
+  }
+}

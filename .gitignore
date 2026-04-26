@@ -34,3 +34,11 @@ coverage/
 dist/
 build/
 .tmp/
+
+# generated local deployment config
+config/config.local.json
+config/generated/
+
+# launchd logs
+*.launchd.out.log
+*.launchd.err.log

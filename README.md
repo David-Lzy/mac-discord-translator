@@ -1,198 +1,245 @@
-# Foundation Discord Translation Stack
+# mac-discord-translator
 
-A cleaned-up, publishable version of the local Discord translation workflow used for the Foundation community server.
+Deployable **macOS Discord translation stack** for local or self-hosted use.
 
-This repo focuses on the **practical pieces that make the system run**:
+It is designed for people who want this workflow:
 
-- a local MLX-based translation API wrapper
-- a Discord mirror bot for bilingual or multilingual channel syncing
-- setup / migration / deployment documentation
-- integration notes for a reaction-based translation bot
+- prepare a Discord bot token and permissions
+- point the project at a translation backend
+- configure channel pairs or multilingual channel groups
+- run **one setup flow**
+- get a working translation relay on a Mac
+
+This repository packages a practical stack that has already been used in a real Discord server.
 
 ---
 
-## What this project can do
+## What it includes
 
-### 1. Local translation API
+### 1. Local MLX translation API
 `mlx-qwen35-translate/`
 
-Runs a local MLX model on Apple Silicon and exposes a **LibreTranslate-compatible** HTTP API.
-
-Current API shape:
+A lightweight wrapper that runs an MLX model locally on Apple Silicon and exposes a **LibreTranslate-compatible** API:
 
 - `GET /health`
 - `GET /languages`
 - `POST /translate`
 
-This makes it easy to plug into other bots or translation workflows without coupling them to a specific model implementation.
+This is useful when you want a local translation endpoint for bots or automations.
 
 ### 2. Discord mirror bot
 `discord-mirror-bot/`
 
-A custom Discord bot that listens to human messages and republishes translated content into linked channels.
+A custom Discord bot that listens to human messages and republishes translated versions into linked channels.
 
-Supported modes:
+Supported features:
 
-- **1:1 language pairs**
-  - example: English ↔ Chinese
-- **multilingual channel groups**
-  - example: one `off-topic` topic split into `zh / en / ja / fr / de / es / ru`
+- **channel pairs**
+  - e.g. English ↔ Chinese
+- **multilingual groups**
+  - e.g. `zh / en / ja / fr / de / es / ru`
 - **attachment forwarding**
-  - images and attachments are mirrored too
+  - images / attachments are mirrored too
 - **webhook sender mirroring**
-  - messages can appear with the original sender name/avatar for a cleaner chat experience
+  - translated messages can preserve the original sender name/avatar style
 
-### 3. Ops / migration docs
+### 3. One-click-ish Mac deployment flow
+`bin/`
+
+This repo now includes:
+
+- `install.sh`
+- `setup-wizard.sh`
+- `deploy.sh`
+- `start.sh`
+- `stop.sh`
+- `status.sh`
+
+The goal is simple:
+
+1. install dependencies
+2. fill in one config
+3. deploy LaunchAgents
+4. run as a persistent local service
+
+### 4. Docs
 `docs/`
 
-Includes practical notes for:
+Includes setup / migration / integration notes for:
 
-- local setup
-- Discord bot permissions and intents
-- environment variables
-- migration to another machine
-- recovery / troubleshooting
-
----
-
-## Architecture
-
-### Reaction translation path
-
-```text
-Discord reaction
-  -> reaction bot (.NET / upstream integration)
-  -> local LibreTranslate-compatible API
-  -> translated reply
-```
-
-### Mirror translation path
-
-```text
-Discord message in source channel
-  -> custom mirror bot
-  -> OpenAI-compatible / vLLM-compatible translation endpoint
-  -> translated message in sibling channel(s)
-```
+- the local MLX API
+- the mirror bot
+- a reaction-based Discord translation bot integration
+- the overall stack
 
 ---
 
 ## Repository layout
 
 ```text
-foundation-discord-translation-stack/
+mac-discord-translator/
 ├── README.md
 ├── .gitignore
+├── bin/
+│   ├── install.sh
+│   ├── setup-wizard.sh
+│   ├── deploy.sh
+│   ├── start.sh
+│   ├── stop.sh
+│   ├── status.sh
+│   ├── run-mirror-bot.sh
+│   └── run-mlx-api.sh
+├── config/
+│   ├── config.example.json
+│   └── generated/
 ├── docs/
 │   ├── DISCORD_TRANSLATION_STACK_GUIDE.md
 │   ├── MLX_SETUP_AND_MIGRATION.md
 │   ├── MIRROR_BOT_SETUP_AND_MIGRATION.md
 │   └── REACTION_BOT_SETUP_AND_MIGRATION.md
 ├── mlx-qwen35-translate/
-│   ├── server.py
-│   ├── run-server.sh
-│   ├── restart-service.sh
-│   ├── stop-service.sh
-│   └── README.md
 ├── discord-mirror-bot/
-│   ├── index.js
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── .env.example
-│   └── README.md
 └── upstreams/
-    └── README.md
 ```
-
----
-
-## What is intentionally excluded
-
-This repo is a **clean export**, so it does **not** include:
-
-- `.env`
-- bot tokens / API keys / SSH keys
-- logs
-- `node_modules`
-- `.venv`
-- downloaded models
-- third-party upstream source trees
-
-That keeps the repo safe to publish and easier to understand.
 
 ---
 
 ## Quick start
 
-### A. Run the local translation API
+### Option A — guided path
 
 ```bash
-cd mlx-qwen35-translate
-./run-server.sh
+./bin/install.sh
+./bin/setup-wizard.sh
+./bin/deploy.sh
+./bin/status.sh
 ```
 
-Then verify:
+### Option B — manual config path
 
 ```bash
-curl -sS http://127.0.0.1:5010/health
+cp config/config.example.json config/config.local.json
+# edit config/config.local.json
+./bin/install.sh
+./bin/deploy.sh
+./bin/status.sh
 ```
-
-### B. Run the mirror bot
-
-```bash
-cd discord-mirror-bot
-cp .env.example .env
-npm install
-node index.js
-```
-
-Then configure your Discord bot token, guild id, and either:
-
-- `MIRROR_CHANNEL_PAIRS`
-- or `MIRROR_CHANNEL_GROUPS`
 
 ---
 
-## Example configurations
+## Configuration model
 
-### 1:1 pair mode
+Main local config file:
 
-```env
-MIRROR_CHANNEL_PAIRS=EN_CHANNEL_ID:ZH_CHANNEL_ID
+- `config/config.local.json`
+
+Example fields:
+
+```json
+{
+  "discord": {
+    "botToken": "PUT_DISCORD_BOT_TOKEN_HERE",
+    "guildId": "PUT_DISCORD_GUILD_ID_HERE",
+    "webhookMode": true,
+    "mentionOriginalAuthor": false
+  },
+  "translation": {
+    "vllmBaseUrl": "http://127.0.0.1:8000/v1",
+    "vllmModel": "/model",
+    "enableLocalMlxApi": true,
+    "mlxHost": "127.0.0.1",
+    "mlxPort": 5010,
+    "mlxModel": "mlx-community/Qwen3.5-0.8B-4bit"
+  },
+  "mirrorBot": {
+    "channelGroups": [
+      "offtopic>CHANNEL_ID|zh,CHANNEL_ID|en,CHANNEL_ID|ja"
+    ],
+    "channelPairs": [
+      "EN_CHANNEL_ID:ZH_CHANNEL_ID"
+    ]
+  }
+}
 ```
-
-### Multilingual group mode
-
-```env
-MIRROR_CHANNEL_GROUPS=offtopic>CHANNEL_ID|zh,CHANNEL_ID|en,CHANNEL_ID|ja,CHANNEL_ID|fr,CHANNEL_ID|de,CHANNEL_ID|es,CHANNEL_ID|ru
-```
-
-In group mode, a message in any one channel is translated to the other channels in the same group.
 
 ---
 
-## Discord permissions / intents
+## Pair mode vs group mode
 
-At minimum, the mirror bot typically needs:
+### Pair mode
+
+```json
+"channelPairs": [
+  "EN_CHANNEL_ID:ZH_CHANNEL_ID"
+]
+```
+
+Good for classic bilingual mirrors.
+
+### Group mode
+
+```json
+"channelGroups": [
+  "offtopic>ZH_ID|zh,EN_ID|en,JA_ID|ja,FR_ID|fr,DE_ID|de,ES_ID|es,RU_ID|ru"
+]
+```
+
+Good for one topic with multiple language subchannels.
+
+In group mode, a message in any channel is translated to the other channels in the same group.
+
+---
+
+## Deployment model on macOS
+
+`deploy.sh` generates local env files and installs LaunchAgents under:
+
+- `~/Library/LaunchAgents/ai.mac-discord-translator.mirror-bot.plist`
+- `~/Library/LaunchAgents/ai.mac-discord-translator.mlx-api.plist`
+
+That means the stack can run persistently on a Mac without manually re-launching scripts every time.
+
+---
+
+## Discord requirements
+
+At minimum, the mirror bot usually needs:
 
 - View Channels
 - Send Messages
 - Read Message History
 - Manage Webhooks (recommended)
 
-And in the Discord Developer Portal:
+And in Discord Developer Portal:
 
 - **Message Content Intent**
 
+If you use a separate reaction-based bot integration, you may also need additional reaction-related permissions and intents.
+
 ---
 
-## Verified use case
+## What this repo intentionally excludes
 
-This stack has already been used to run a real multilingual Discord workflow, including:
+This is a clean publishable repo. It does **not** include:
 
-- standard bilingual CN / EN mirrored channels
+- `.env`
+- secrets / bot tokens / SSH keys
+- logs
+- `node_modules`
+- `.venv`
+- downloaded models
+- third-party upstream source trees
+
+---
+
+## Verified real-world use cases
+
+This stack has already been used for:
+
+- bilingual CN / EN mirrored channels
 - private mirrored channels
-- a dedicated multilingual `off-topic` translation area with:
+- attachment/image mirroring
+- a multilingual `off-topic` translation area with:
   - Chinese
   - English
   - Japanese
@@ -203,21 +250,7 @@ This stack has already been used to run a real multilingual Discord workflow, in
 
 ---
 
-## Related / upstream notes
-
-The reaction-based translation bot used in the original local setup is based on an upstream .NET project.
-That upstream source tree is **not redistributed here**, but the integration approach is documented.
-
-See:
-
-- `docs/REACTION_BOT_SETUP_AND_MIGRATION.md`
-- `upstreams/README.md`
-
----
-
 ## Recommended reading order
-
-If you want the fastest path:
 
 1. `docs/DISCORD_TRANSLATION_STACK_GUIDE.md`
 2. `docs/MLX_SETUP_AND_MIGRATION.md`
@@ -226,7 +259,24 @@ If you want the fastest path:
 
 ---
 
-## License / publishing note
+## Future improvements
 
-This repository contains original glue code, wrappers, and documentation prepared from a private local working setup.
-Any upstream third-party projects should be obtained from their original repositories and used under their own licenses.
+Planned / likely next steps:
+
+- stronger validation in the setup wizard
+- optional OCR pipeline for images
+- optional Discord slash-command based configuration helper
+- optional support for additional translation backends
+- packaging as a more polished reusable Mac app/server bundle
+
+---
+
+## Upstream note
+
+A reaction-based translation bot can also be integrated into this stack.
+That upstream source is **not redistributed here**, but the integration approach is documented.
+
+See:
+
+- `docs/REACTION_BOT_SETUP_AND_MIGRATION.md`
+- `upstreams/README.md`

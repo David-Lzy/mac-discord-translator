@@ -17,6 +17,20 @@
 
 ---
 
+## 零点五、一键部署入口
+
+当前仓库已经补上了 macOS 本地部署脚手架：
+
+- `bin/install.sh`
+- `bin/setup-wizard.sh`
+- `bin/deploy.sh`
+- `bin/status.sh`
+- `docs/ONE_CLICK_DEPLOYMENT.md`
+
+如果你不是要逐个组件手动搭，建议优先阅读 `docs/ONE_CLICK_DEPLOYMENT.md`。
+
+---
+
 ## 一、推荐部署顺序
 
 ### 方案 A：只做 reaction 翻译
