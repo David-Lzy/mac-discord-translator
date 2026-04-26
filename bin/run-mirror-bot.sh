@@ -10,5 +10,13 @@ fi
 set -a
 source "$ENV_FILE"
 set +a
+NODE_BIN="$(command -v node || true)"
+if [[ -z "$NODE_BIN" && -x /opt/homebrew/bin/node ]]; then
+  NODE_BIN=/opt/homebrew/bin/node
+fi
+if [[ -z "$NODE_BIN" ]]; then
+  echo "node not found in PATH and /opt/homebrew/bin/node is unavailable" >&2
+  exit 127
+fi
 cd "$REPO_ROOT/discord-mirror-bot"
-exec node index.js >> "$LOG_FILE" 2>&1
+exec "$NODE_BIN" index.js >> "$LOG_FILE" 2>&1

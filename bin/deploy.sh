@@ -59,7 +59,7 @@ fi
 "$REPO_ROOT/bin/preflight.sh" "${PREFLIGHT_ARGS[@]}"
 
 python3 - <<PY
-import json, pathlib
+import json, pathlib, shlex
 config = json.loads(pathlib.Path(r"$CONFIG_FILE").read_text())
 out_dir = pathlib.Path(r"$GENERATED_DIR")
 out_dir.mkdir(parents=True, exist_ok=True)
@@ -69,7 +69,7 @@ translation = config["translation"]
 mirror = config["mirrorBot"]
 
 def line(key, value):
-    return f"{key}={value}\n"
+    return f"{key}={shlex.quote(str(value))}\n"
 
 mirror_env = "".join([
     line('DISCORD_BOT_TOKEN', discord['botToken']),

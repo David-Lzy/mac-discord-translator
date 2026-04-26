@@ -254,7 +254,7 @@ async function relayMessage({ targetChannel, author, translated, originalMessage
   });
 }
 
-client.on('ready', () => {
+client.on('clientReady', () => {
   console.log(`Mirror bot logged in as ${client.user.tag}`);
   console.log(`Guild: ${config.guildId}`);
   for (const group of config.channelGroups) {
