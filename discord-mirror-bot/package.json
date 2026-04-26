@@ -1,0 +1,14 @@
+{
+  "name": "discord-mirror-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Traditional Discord mirror translation bot using a local vLLM endpoint.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.23.2"
+  }
+}

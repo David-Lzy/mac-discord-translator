@@ -1,0 +1,36 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+
+# ssh / auth
+**/.ssh/
+**/hosts.yml
+
+# runtime
+*.log
+logs/
+nohup.out
+
+# node
+node_modules/
+npm-debug.log*
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# local outputs
+coverage/
+dist/
+build/
+.tmp/
