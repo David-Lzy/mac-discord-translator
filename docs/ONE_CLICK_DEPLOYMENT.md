@@ -24,6 +24,7 @@ Before deployment, the user still needs to prepare a few things manually:
 ```bash
 ./bin/install.sh
 ./bin/setup-wizard.sh
+./bin/preflight.sh --check-discord
 ./bin/deploy.sh --dry-run
 ./bin/deploy.sh
 ./bin/status.sh
@@ -53,6 +54,26 @@ This is the safest way to catch:
 - empty bot token
 - invalid translation URL
 
+
+
+### `./bin/preflight.sh`
+
+Performs a safer pre-deploy check:
+
+- validates config syntax and required fields
+- checks local command availability
+- warns about missing `node_modules` or `.venv`
+- checks translation endpoint reachability
+- optionally verifies Discord bot access and channel visibility via Discord API
+
+### `./bin/generate-smoke-test-config.sh`
+
+Creates a small test config for either:
+
+- one EN↔ZH pair
+- one small multilingual group
+
+Useful when you want to validate the stack before configuring the full production layout.
 
 ## What each script does
 

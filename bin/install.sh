@@ -4,16 +4,24 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
 need_cmd() {
-  command -v "$1" >/dev/null 2>&1 || { echo "Missing required command: $1" >&2; exit 1; }
+  command -v "$1" >/dev/null 2>&1 || { echo "INSTALL ERROR: missing required command: $1" >&2; exit 1; }
 }
 
 need_cmd node
 need_cmd npm
 need_cmd python3
+need_cmd curl
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
-  echo "This installer currently targets macOS." >&2
+  echo "INSTALL ERROR: this installer currently targets macOS." >&2
   exit 1
+fi
+
+echo "[preflight]"
+if [[ -f "$REPO_ROOT/config/config.local.json" ]]; then
+  "$REPO_ROOT/bin/preflight.sh" --config "$REPO_ROOT/config/config.local.json" || true
+else
+  echo "No config/config.local.json yet; continuing with dependency install only."
 fi
 
 echo "[1/4] Installing mirror bot npm dependencies..."
@@ -34,7 +42,8 @@ if [[ ! -f "$REPO_ROOT/config/config.local.json" ]]; then
   echo "Created config/config.local.json from example."
 fi
 
-echo "[4/4] Install complete. Next steps:"
-echo "  1. Edit config/config.local.json"
-echo "  2. Run ./bin/deploy.sh"
-echo "  3. Run ./bin/status.sh"
+echo "[4/4] Install complete. Suggested next steps:"
+echo "  1. ./bin/setup-wizard.sh    (or edit config/config.local.json manually)"
+echo "  2. ./bin/deploy.sh --dry-run"
+echo "  3. ./bin/deploy.sh"
+echo "  4. ./bin/status.sh"

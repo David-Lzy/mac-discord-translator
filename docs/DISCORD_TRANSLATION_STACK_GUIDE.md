@@ -200,3 +200,7 @@
 - Mirror bot：`/Users/davidli/.openclaw/workspace/scripts/discord-mirror-bot/SETUP_AND_MIGRATION.md`
 
 - Discord 权限检查：`docs/DISCORD_PERMISSIONS_CHECKLIST.md`
+
+- 预检查：`bin/preflight.sh`
+- Discord 访问校验：`bin/check-discord-config.py`
+- smoke-test 配置生成：`bin/generate-smoke-test-config.sh`

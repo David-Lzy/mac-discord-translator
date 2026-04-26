@@ -3,16 +3,18 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CONFIG_FILE="$REPO_ROOT/config/config.local.json"
 DRY_RUN=false
+CHECK_DISCORD=true
 
 usage() {
-  cat <<EOF
+  cat <<USAGE
 Usage:
-  ./bin/deploy.sh [--config PATH] [--dry-run]
+  ./bin/deploy.sh [--config PATH] [--dry-run] [--skip-discord-check]
 
 Options:
-  --config PATH   Use a custom config file
-  --dry-run       Validate and generate preview only; do not install LaunchAgents
-EOF
+  --config PATH          Use a custom config file
+  --dry-run              Validate and generate preview only; do not install LaunchAgents
+  --skip-discord-check   Skip live Discord API channel access validation
+USAGE
 }
 
 while [[ $# -gt 0 ]]; do
@@ -23,6 +25,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run)
       DRY_RUN=true
+      shift
+      ;;
+    --skip-discord-check)
+      CHECK_DISCORD=false
       shift
       ;;
     -h|--help)
@@ -46,7 +52,11 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
   exit 1
 fi
 
-python3 "$REPO_ROOT/bin/validate-config.py" "$CONFIG_FILE"
+PREFLIGHT_ARGS=(--config "$CONFIG_FILE")
+if [[ "$CHECK_DISCORD" == "true" ]]; then
+  PREFLIGHT_ARGS+=(--check-discord)
+fi
+"$REPO_ROOT/bin/preflight.sh" "${PREFLIGHT_ARGS[@]}"
 
 python3 - <<PY
 import json, pathlib
@@ -123,13 +133,6 @@ cat > "$HOME/Library/LaunchAgents/ai.mac-discord-translator.mirror-bot.plist" <<
 </dict>
 </plist>
 PLIST
-
-ENABLE_LOCAL_MLX=$(python3 - <<PY
-import json, pathlib
-cfg = json.loads(pathlib.Path(r"$CONFIG_FILE").read_text())
-print('true' if cfg['translation'].get('enableLocalMlxApi', False) else 'false')
-PY
-)
 
 if [[ "$ENABLE_LOCAL_MLX" == "true" ]]; then
 cat > "$HOME/Library/LaunchAgents/ai.mac-discord-translator.mlx-api.plist" <<PLIST

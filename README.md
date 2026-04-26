@@ -104,6 +104,27 @@ mac-discord-translator/
 
 ---
 
+## New productization helpers
+
+This repository now also includes:
+
+- `bin/preflight.sh` — environment + config + optional Discord API verification
+- `bin/check-discord-config.py` — verifies the bot can see the configured guild and channels
+- `bin/generate-smoke-test-config.sh` — quickly generate a minimal test config
+- `bin/validate-config.py` — strict local config validation
+
+Recommended safe flow:
+
+```bash
+./bin/install.sh
+./bin/setup-wizard.sh
+./bin/preflight.sh --check-discord
+./bin/deploy.sh --dry-run
+./bin/deploy.sh
+./bin/status.sh
+```
+
+
 ## Quick start
 
 ### Option A — guided path
@@ -111,6 +132,7 @@ mac-discord-translator/
 ```bash
 ./bin/install.sh
 ./bin/setup-wizard.sh
+./bin/preflight.sh --check-discord
 ./bin/deploy.sh --dry-run
 ./bin/deploy.sh
 ./bin/status.sh

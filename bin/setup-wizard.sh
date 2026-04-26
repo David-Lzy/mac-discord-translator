@@ -17,6 +17,7 @@ prompt_required() {
 }
 
 echo "mac-discord-translator setup wizard"
+echo "This wizard writes config/config.local.json"
 echo "Press Enter to accept defaults where shown."
 echo
 
@@ -28,8 +29,32 @@ VLLM_MODEL=${VLLM_MODEL:-/model}
 read -r -p "Enable local MLX API LaunchAgent? [y/N]: " ENABLE_LOCAL
 read -r -p "Enable webhook mode? [Y/n]: " WEBHOOK_MODE_RAW
 read -r -p "Mention original author in relayed messages? [y/N]: " MENTION_AUTHOR_RAW
-read -r -p "Mirror channel groups (semicolon separated, optional): " CHANNEL_GROUPS
-read -r -p "Mirror channel pairs EN:ZH (semicolon separated, optional): " CHANNEL_PAIRS
+read -r -p "Configuration mode: pair / group / mixed [group]: " CONFIG_MODE
+CONFIG_MODE=${CONFIG_MODE:-group}
+
+CHANNEL_GROUPS=""
+CHANNEL_PAIRS=""
+case "$CONFIG_MODE" in
+  pair)
+    echo "Enter one or more EN:ZH pairs, separated by semicolons if needed."
+    read -r -p "Pairs: " CHANNEL_PAIRS
+    ;;
+  group)
+    echo "Enter one or more groups like:"
+    echo "  offtopic>CHANNEL_ID|zh,CHANNEL_ID|en,CHANNEL_ID|ja"
+    read -r -p "Groups: " CHANNEL_GROUPS
+    ;;
+  mixed)
+    echo "Enter groups like: offtopic>CHANNEL_ID|zh,CHANNEL_ID|en"
+    read -r -p "Groups (optional): " CHANNEL_GROUPS
+    echo "Enter pairs like: EN_ID:ZH_ID;EN_ID:ZH_ID"
+    read -r -p "Pairs (optional): " CHANNEL_PAIRS
+    ;;
+  *)
+    echo "Unknown mode: $CONFIG_MODE" >&2
+    exit 1
+    ;;
+esac
 
 ENABLE_BOOL=false
 [[ "$ENABLE_LOCAL" =~ ^[Yy]$ ]] && ENABLE_BOOL=true
@@ -68,6 +93,7 @@ PY
 python3 "$REPO_ROOT/bin/validate-config.py" "$CONFIG_FILE"
 
 echo
-echo "Config validated. Next steps:"
+echo "Config validated. Recommended next steps:"
+echo "  ./bin/preflight.sh --check-discord"
 echo "  ./bin/deploy.sh --dry-run"
 echo "  ./bin/deploy.sh"

@@ -3,10 +3,19 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MIRROR_LABEL="ai.mac-discord-translator.mirror-bot"
 MLX_LABEL="ai.mac-discord-translator.mlx-api"
+CONFIG_FILE="$REPO_ROOT/config/config.local.json"
 
 echo "== config validation =="
-if [[ -f "$REPO_ROOT/config/config.local.json" ]]; then
-  python3 "$REPO_ROOT/bin/validate-config.py" "$REPO_ROOT/config/config.local.json" || true
+if [[ -f "$CONFIG_FILE" ]]; then
+  python3 "$REPO_ROOT/bin/validate-config.py" "$CONFIG_FILE" || true
+else
+  echo "No config/config.local.json found"
+fi
+
+echo
+echo "== discord API check =="
+if [[ -f "$CONFIG_FILE" ]]; then
+  python3 "$REPO_ROOT/bin/check-discord-config.py" "$CONFIG_FILE" || true
 else
   echo "No config/config.local.json found"
 fi
