@@ -111,6 +111,7 @@ mac-discord-translator/
 ```bash
 ./bin/install.sh
 ./bin/setup-wizard.sh
+./bin/deploy.sh --dry-run
 ./bin/deploy.sh
 ./bin/status.sh
 ```
@@ -163,6 +164,25 @@ Example fields:
 ```
 
 ---
+
+## Safer deployment flow
+
+This repository now includes:
+
+- **config validation** via `bin/validate-config.py`
+- **dry-run deployment** via `./bin/deploy.sh --dry-run`
+- clearer `status.sh` output for common setup mistakes
+- a Discord-side checklist at `docs/DISCORD_PERMISSIONS_CHECKLIST.md`
+
+Recommended habit:
+
+```bash
+./bin/deploy.sh --dry-run
+./bin/deploy.sh
+```
+
+Run the dry-run first whenever you change token, guild id, channel ids, or group layout.
+
 
 ## Pair mode vs group mode
 

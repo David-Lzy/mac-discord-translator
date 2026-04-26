@@ -24,11 +24,35 @@ Before deployment, the user still needs to prepare a few things manually:
 ```bash
 ./bin/install.sh
 ./bin/setup-wizard.sh
+./bin/deploy.sh --dry-run
 ./bin/deploy.sh
 ./bin/status.sh
 ```
 
 ---
+
+
+## Validation and dry-run
+
+Before installing LaunchAgents for real, use:
+
+```bash
+./bin/deploy.sh --dry-run
+```
+
+This will:
+
+- validate `config/config.local.json`
+- generate local env files
+- stop before installing / restarting services
+
+This is the safest way to catch:
+
+- bad guild ids
+- malformed channel group syntax
+- empty bot token
+- invalid translation URL
+
 
 ## What each script does
 

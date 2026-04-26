@@ -198,3 +198,5 @@
 - 本地 MLX API：`/Users/davidli/.openclaw/workspace/scripts/mlx-qwen35-translate/SETUP_AND_MIGRATION.md`
 - Reaction bot：`/Users/davidli/.openclaw/workspace/scripts/DiscordTranslationBot-upstream/SETUP_AND_MIGRATION.md`
 - Mirror bot：`/Users/davidli/.openclaw/workspace/scripts/discord-mirror-bot/SETUP_AND_MIGRATION.md`
+
+- Discord 权限检查：`docs/DISCORD_PERMISSIONS_CHECKLIST.md`
